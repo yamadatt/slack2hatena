@@ -17,7 +17,7 @@ import (
 func main() {
 	api := slack.New(os.Getenv("SLACKAPI"))
 
-	searchPath := "./information/"
+	searchPath := "./dayly/"
 	fis, err := ioutil.ReadDir(searchPath)
 
 	if err != nil {
