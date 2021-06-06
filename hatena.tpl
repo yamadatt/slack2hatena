@@ -4,7 +4,7 @@ Category:
 - slack
 Date: {{range .}}{{ .Postdate }}{{end}}T06:00:00+09:00
 ---
-## information
+## {{range .}}{{ .Channel }}{{end}}
 {{range .}}
 ### {{ .Posttime }}
 

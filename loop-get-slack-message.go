@@ -38,7 +38,7 @@ type slackmessages []*Hatena
 func main() {
 	// 現在時刻取得
 
-	for i := 370; i < 1000 ; i++{
+	for i := 0; i < 11 ; i++{
 
 	now := time.Now()
 	oldest := strconv.FormatInt(time.Date(now.AddDate(0, 0, -1-i).Year(), now.AddDate(0, 0, -1-i).Month(), now.AddDate(0, 0, -1-i).Day(), 6, 0, 0, 0, time.Local).UnixNano(), 10)
@@ -50,8 +50,8 @@ func main() {
 	// Slack の conversation.history 実行
 	api := slack.New(os.Getenv("SLACKAPI"))
 	param := slack.GetConversationHistoryParameters{
-		ChannelID: "CKMJESN6Q", //information
-		//ChannelID: "C3BE7GEE6", //general
+		// ChannelID: "CKMJESN6Q", //information
+		ChannelID: "C3BE7GEE6", //general
 		Oldest:    oldest[:10] + "." + oldest[11:16],
 		Latest:    latest[:10] + "." + latest[11:16],
 	}

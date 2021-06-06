@@ -12,8 +12,8 @@ import (
 )
 
 type Hatena struct {
-	Postdate        string
-	Channel string
+	Postdate string
+	Channel  string
 	Messages
 }
 
@@ -45,33 +45,36 @@ func main() {
 
 	postdate := fmt.Sprintf(now.AddDate(0, 0, 0).Format("2006-01-02"))
 
-	// Slack の conversation.history 実行
-	api := slack.New(os.Getenv("SLACKAPI"))
-	param := slack.GetConversationHistoryParameters{
-		ChannelID: "CKMJESN6Q",
-		Oldest:    oldest[:10] + "." + oldest[11:16],
-		Latest:    latest[:10] + "." + latest[11:16],
+	var channel [2]string = [2]string{"C3BE7GEE6", "CKMJESN6Q"}
+
+	for _, channel_name := range channel {
+
+		// Slack の conversation.history 実行
+		api := slack.New(os.Getenv("SLACKAPI"))
+		param := slack.GetConversationHistoryParameters{
+			ChannelID: channel_name,
+			Oldest:    oldest[:10] + "." + oldest[11:16],
+			Latest:    latest[:10] + "." + latest[11:16],
+		}
+		history, err := api.GetConversationHistory(&param)
+		if err != nil {
+			fmt.Printf("%s\n", err)
+			return
+		}
+
+		var m slackmessages
+
+		for i := len(history.Messages) - 1; i >= 0; i-- {
+			m = append(m, doMessage(history.Messages[i].Text, history.Messages[i].Username, history.Messages[i].Timestamp, history.Messages[i].Files))
+		}
+
+		m = append(m, doPostdate(postdate))
+		m = append(m, doChannelname(channel_name))
+
+		//テンプレートに出力する
+		tmpl := template.Must(template.ParseFiles("hatena.tpl"))
+		SaveToFile(tmpl, m, postdate)
 	}
-	history, err := api.GetConversationHistory(&param)
-	if err != nil {
-		fmt.Printf("%s\n", err)
-		return
-	}
-
-	var m slackmessages
-
-	for i := len(history.Messages) - 1; i >= 0; i-- {
-
-		m = append(m, doMessage(history.Messages[i].Text, history.Messages[i].Username, history.Messages[i].Timestamp, history.Messages[i].Files))
-
-	}
-
-	m = append(m,doPostdate(postdate))
-
-	//テンプレートに出力する
-	tmpl := template.Must(template.ParseFiles("hatena.tpl"))
-	SaveToFile(tmpl, m, postdate)
-
 }
 
 // doMessage テンプレートに渡すための情報を編集して、構造体に入れる
@@ -109,13 +112,30 @@ func doPostdate(postdate string) (r *Hatena) {
 
 	// はてなブログに投稿する日時を格納する
 	r.Postdate = postdate
-	
+
+	return r
+}
+
+func doChannelname(channel_name string) (r *Hatena) {
+	r = new(Hatena)
+
+	// はてなブログに投稿する日時を格納する
+	switch channel_name {
+	case "C3BE7GEE6":
+		r.Channel = "general"
+
+	case "CKMJESN6Q":
+		r.Channel = "information"
+
+	}
+
 	return r
 }
 
 // テンプレート機能を使って、マークダウンファイルを作成する
 func SaveToFile(tmpl *template.Template, m slackmessages, filename string) {
-	nf, err := os.Create(filename + ".md")
+	// nf, err := os.Create(filename + ".md")
+	nf, err := os.OpenFile(filename+".md", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
 		log.Println("error createing file", err)
 	}
