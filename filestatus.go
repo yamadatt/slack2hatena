@@ -64,6 +64,8 @@ func main() {
 		fmt.Println(st)
 	}
 
+
+	//日付でソート
 	sort.Slice(ps.Photofiles, func(i, j int) bool {
 		return ps.Photofiles[i].ModTime.Before(ps.Photofiles[j].ModTime)
 	})
