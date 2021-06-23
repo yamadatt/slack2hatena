@@ -6,14 +6,17 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+	"sort"
 )
 
+// ファイルアップロードに必要な構造体
 type Photofile struct {
 	FileName string
 	FilePath string
 	ModTime  time.Time
 }
 
+//ファイルアップロードに必要な構造体をスライスで扱うための構造体
 type Photofiles struct {
 	Photofiles []*Photofile
 }
@@ -28,11 +31,12 @@ func main() {
 		panic(err)
 	}
 
+	//構造体の初期化
 	ps := &Photofiles{}
 
 	for _, fi := range fis {
 
-
+		// 構造体の初期化
 		p  := &Photofile{}
 
 		fullPath := filepath.Join(searchPath, fi.Name())
@@ -52,8 +56,25 @@ func main() {
 	}
 
 //構造体にappendした内容を1つずつ出力する
+//デバッグ用にインデックスも使用している。
+
+
 	for i, st := range ps.Photofiles {
 		fmt.Print(i)
 		fmt.Println(st)
 	}
+
+	sort.Slice(ps.Photofiles, func(i, j int) bool {
+		return ps.Photofiles[i].ModTime.Before(ps.Photofiles[j].ModTime)
+	})
+
+
+	fmt.Println("----------after sort-----------")
+
+	for i, st := range ps.Photofiles {
+		fmt.Print(i)
+		fmt.Println(st)
+	}
+
+
 }
