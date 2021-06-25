@@ -39,7 +39,7 @@ func main() {
 		// 構造体の初期化
 		p  := &Photofile{}
 
-		fullPath := filepath.Join(searchPath, fi.Name())
+		fullPath ,_:= filepath.Abs(filepath.Join(searchPath, fi.Name()))
 		//fmt.Println(fullPath)
 
 		f, _ := os.Open(fullPath)
@@ -48,7 +48,10 @@ func main() {
 		if file_status, err := f.Stat(); err == nil {
 			p.FileName = file_status.Name()
 			p.FilePath = fullPath
-			p.ModTime = file_status.ModTime()
+
+			jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+
+			p.ModTime = file_status.ModTime().In(jst)
 			ps.Photofiles = append(ps.Photofiles, p)
 
 		}
@@ -78,5 +81,15 @@ func main() {
 		fmt.Println(st)
 	}
 
+// //日付の一致確認サンプル
+// 	dt := time.Now()
+// 	var jst = time.FixedZone("Asia/Tokyo", 9*60*60)
+// 	dt1 := time.Date(dt.Year(), dt.Month(), dt.Day(), 0, 0, 0, 0, jst)
+// 	dt2 := time.Date(2021, 4, 16, 0, 0, 0, 0, jst)
+// 	if dt1.Equal(dt2) {
+// 		fmt.Println("match!")
+// 	} else {
+// 		fmt.Println("unmatch!")
+// 	}
 
 }
