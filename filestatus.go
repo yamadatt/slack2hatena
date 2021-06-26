@@ -78,7 +78,7 @@ func main() {
 
 	for i, st := range ps.Photofiles {
 		fmt.Print(i)
-		fmt.Println(st)
+		fmt.Println(st.FilePath)
 	}
 
 // //日付の一致確認サンプル
